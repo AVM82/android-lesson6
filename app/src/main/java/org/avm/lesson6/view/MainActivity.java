@@ -12,11 +12,17 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.avm.lesson6.R;
+import org.avm.lesson6.presenter.IMainPresenter;
+import org.avm.lesson6.presenter.MainPresenter;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
 
+import io.realm.Realm;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements IMainActivity {
+
+    private IMainPresenter mainPresenter;
+    private Realm realm;
 
     String[] data = {"one", "two", "three", "four", "five"};
 
@@ -24,6 +30,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mainPresenter = new MainPresenter(this);
+        Realm.init(getApplicationContext());
+        realm = Realm.getDefaultInstance();
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -41,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 // показываем позиция нажатого элемента
                 Toast.makeText(getBaseContext(), "Position = " + position, Toast.LENGTH_SHORT).show();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
@@ -58,8 +69,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Timber.d("Show dialog to add new drink");
         AddNewDrinkDialog addNewDrinkDialog = new AddNewDrinkDialog();
+        addNewDrinkDialog.setOnDialogListener(nameOfDrink -> mainPresenter.saveNewDrinkToBase(nameOfDrink));
         addNewDrinkDialog.show(getSupportFragmentManager(), "addNewDrink");
-
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public Realm getRealm() {
+        return realm;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
+    }
+
 }

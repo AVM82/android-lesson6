@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -14,21 +15,33 @@ import android.view.ViewGroup;
 
 import org.avm.lesson6.R;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class AddNewDrinkDialog extends DialogFragment {
+
     public interface DialogListener {
-        void onClickYesButton ();
-        void onClickCancelButton();
+        void onClickYesButton(String nameOfDrink);
     }
 
     private Unbinder unbinder;
+    private DialogListener dialogListener;
 
-    @OnClick(R.id.close_dialog)
-    void onCliclCloseDialog(){
+    @BindView(R.id.name_of_drink)
+    TextInputEditText nameOfDrink;
+
+    @OnClick({R.id.close_dialog, R.id.button_no})
+    void onClickCloseDialog() {
+        Timber.d("onClickCloseDialog() handler was called");
+        dismiss();
+    }
+
+    @OnClick(R.id.button_yes)
+    void onClickYesButton() {
+        dialogListener.onClickYesButton(nameOfDrink.getText().toString());
         dismiss();
     }
 
@@ -52,6 +65,10 @@ public class AddNewDrinkDialog extends DialogFragment {
         super.onStart();
         Timber.d("AddNewDrinkDialog onStart() handler was called");
         unbinder = ButterKnife.bind(this, getDialog());
+    }
+
+    public void setOnDialogListener(DialogListener dialogListener) {
+        this.dialogListener = dialogListener;
     }
 
     @Override

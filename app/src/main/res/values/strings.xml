@@ -6,4 +6,5 @@
     <string name="enter_the_name_of_the_new_drink">Enter the name of the new drink</string>
     <string name="save">SAVE</string>
     <string name="cancel">CANCEL</string>
+    <string name="text_for_spinner">What will we drink</string>
 </resources>

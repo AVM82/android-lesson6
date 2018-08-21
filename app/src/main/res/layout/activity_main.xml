@@ -16,6 +16,14 @@
         android:textSize="72sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:text="@string/text_for_spinner" />
+
     <Spinner
         android:id="@+id/spinner"
         android:layout_width="match_parent"

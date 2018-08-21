@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">lesson6</string>
     <string name="def_value_clock">00:00</string>
+    <string name="add_drink">Add drink</string>
+    <string name="add_new_drink">Add new drink</string>
+    <string name="enter_the_name_of_the_new_drink">Enter the name of the new drink</string>
+    <string name="save">SAVE</string>
+    <string name="cancel">CANCEL</string>
 </resources>

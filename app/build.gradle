@@ -1,4 +1,8 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+realm {
+    syncEnabled = true
+}
 
 android {
     compileSdkVersion 27
@@ -15,6 +19,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        repositories {
+            jcenter()
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -22,6 +33,18 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    //Butter Knife
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    implementation 'com.android.support:support-v4:27.1.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+    //Timber for log
+    implementation 'com.jakewharton.timber:timber:4.7.0'
+    //Realm
+    implementation 'io.realm:android-adapters:3.0.0'
+    //Add design and appcompat libraries
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

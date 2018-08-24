@@ -5,17 +5,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import org.avm.lesson6.R;
 import org.avm.lesson6.presenter.IMainPresenter;
 import org.avm.lesson6.presenter.MainPresenter;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.realm.Realm;
 import timber.log.Timber;
 
@@ -23,39 +23,30 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     private IMainPresenter mainPresenter;
     private Realm realm;
+    private ArrayAdapter<String> adapter;
 
-    String[] data = {"one", "two", "three", "four", "five"};
+    @BindView(R.id.drink_list_spinner)
+    Spinner drinkListSpinner;
+
+    @OnClick(R.id.start_button)
+    void onStartButtonClick() {
+        String drinkName = drinkListSpinner.getSelectedItem().toString();
+        mainPresenter.setActiveDrink(drinkName);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         mainPresenter = new MainPresenter(this);
         Realm.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_item, data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        spinner.setAdapter(adapter);
-        // заголовок
-        spinner.setPrompt("Title");
-        // выделяем элемент
-        spinner.setSelection(2);
-        // устанавливаем обработчик нажатия
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int position, long id) {
-                // показываем позиция нажатого элемента
-                Toast.makeText(getBaseContext(), "Position = " + position, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
+        adapter = new ArrayAdapter<>(this, R.layout.spinner_item,
+                mainPresenter.getListDrinks());
+        drinkListSpinner.setAdapter(adapter);
+        int activeDrinkPosition = mainPresenter.getActiveDrinkPosition(adapter);
+        drinkListSpinner.setSelection(activeDrinkPosition);
     }
 
     @Override
@@ -69,7 +60,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Timber.d("Show dialog to add new drink");
         AddNewDrinkDialog addNewDrinkDialog = new AddNewDrinkDialog();
-        addNewDrinkDialog.setOnDialogListener(nameOfDrink -> mainPresenter.saveNewDrinkToBase(nameOfDrink));
+        addNewDrinkDialog.setOnDialogListener(nameOfDrink -> {
+            mainPresenter.saveNewDrinkToBase(nameOfDrink);
+            adapter.add(nameOfDrink);
+            adapter.notifyDataSetChanged();
+        });
         addNewDrinkDialog.show(getSupportFragmentManager(), "addNewDrink");
         return super.onOptionsItemSelected(item);
     }

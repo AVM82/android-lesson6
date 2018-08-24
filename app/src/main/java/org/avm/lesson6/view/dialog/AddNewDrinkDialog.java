@@ -41,8 +41,16 @@ public class AddNewDrinkDialog extends DialogFragment {
 
     @OnClick(R.id.button_yes)
     void onClickYesButton() {
-        dialogListener.onClickYesButton(nameOfDrink.getText().toString());
-        dismiss();
+        if(validate()) {
+            dialogListener.onClickYesButton(nameOfDrink.getText().toString());
+            dismiss();
+        } else {
+            nameOfDrink.setError(getString(R.string.alert_empty_name_drink));
+        }
+    }
+
+    private boolean validate() {
+        return !nameOfDrink.getText().toString().isEmpty();
     }
 
     @NonNull

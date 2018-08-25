@@ -50,16 +50,18 @@ public class MainPresenter implements IMainPresenter {
     }
 
     @Override
-    public void setActiveDrink(String drinkName) {
-        disableActiveDrinks();
+    public long setActiveDrink(String drinkName) {
         DrinkRealmObject drink = findDrinkByName(drinkName);
+        long timeInMillis = Calendar.getInstance().getTimeInMillis();
         mainActivity.getRealm().executeTransaction(realm -> {
             drink.setActive(true);
-            drink.setTimeLastStart(Calendar.getInstance().getTimeInMillis());
+            drink.setTimeLastStart(timeInMillis);
         });
+        return timeInMillis;
     }
 
-    private void disableActiveDrinks() {
+    @Override
+    public void disableAllActiveDrinks() {
         final RealmResults<DrinkRealmObject> activeDrinks = getActiveDrinks();
         mainActivity.getRealm().executeTransaction(realm -> {
             for (DrinkRealmObject drink: activeDrinks) {

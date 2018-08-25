@@ -12,6 +12,17 @@ public interface IMainPresenter {
 
     int getActiveDrinkPosition(ArrayAdapter<String> adapter);
 
-    void setActiveDrink(String drinkName);
+    /**
+     * Changes the status all of drinks to the inactive
+     */
+    void disableAllActiveDrinks();
+
+    /**
+     *Changes the status of the drink to the active
+     *
+     * @param drinkName name of drink which will be set as active
+     * @return activation time
+     */
+    long setActiveDrink(String drinkName);
 
 }

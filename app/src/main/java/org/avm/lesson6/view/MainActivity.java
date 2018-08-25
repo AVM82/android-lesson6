@@ -7,11 +7,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.avm.lesson6.R;
 import org.avm.lesson6.presenter.IMainPresenter;
 import org.avm.lesson6.presenter.MainPresenter;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,17 +26,25 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements IMainActivity {
 
+    private static final int MESSAGE_FREQUENCY_MINUTES = 30;
+    public static final int MILLISECOND = 1000;
+    public static final int SECOND_IN_MINUTE = 60;
+
     private IMainPresenter mainPresenter;
     private Realm realm;
     private ArrayAdapter<String> adapter;
 
     @BindView(R.id.drink_list_spinner)
     Spinner drinkListSpinner;
+    @BindView(R.id.tvClock)
+    TextView tvClock;
 
     @OnClick(R.id.start_button)
     void onStartButtonClick() {
         String drinkName = drinkListSpinner.getSelectedItem().toString();
-        mainPresenter.setActiveDrink(drinkName);
+        mainPresenter.disableAllActiveDrinks();
+        long activationTime = mainPresenter.setActiveDrink(drinkName);
+        updateTimer(activationTime);
     }
 
     @Override
@@ -72,6 +85,22 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     @Override
     public Realm getRealm() {
         return realm;
+    }
+
+    @Override
+    public void updateTimer(long timeInMillis) {
+        long nextAlert = getNextAlert(timeInMillis);
+        long currentTime = getCurrentTime();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss", Locale.ENGLISH);
+        tvClock.setText(simpleDateFormat.format(nextAlert - currentTime));
+    }
+
+    private long getCurrentTime() {
+        return Calendar.getInstance().getTimeInMillis();
+    }
+
+    private long getNextAlert(long timeInMillis) {
+        return timeInMillis + (MESSAGE_FREQUENCY_MINUTES * SECOND_IN_MINUTE * MILLISECOND);
     }
 
     @Override

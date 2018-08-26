@@ -17,4 +17,6 @@ public interface IDataBaseManager {
     void disableAllActiveDrinks();
 
     void close();
+
+    long getActiveDrinkTime(String nameDrink);
 }

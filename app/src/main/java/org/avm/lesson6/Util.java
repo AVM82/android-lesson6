@@ -1,4 +1,4 @@
-package org.avm.lesson6.model;
+package org.avm.lesson6;
 
 public class Util {
     private static final int MILLISECOND = 1000;

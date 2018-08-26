@@ -7,12 +7,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.avm.lesson6.R;
-import org.avm.lesson6.model.NotificationBroadcastReceiver;
-import org.avm.lesson6.model.Util;
+import org.avm.lesson6.service.NotificationBroadcastReceiver;
+import org.avm.lesson6.Util;
 import org.avm.lesson6.presenter.IMainPresenter;
 import org.avm.lesson6.presenter.MainPresenter;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
@@ -33,8 +34,12 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @BindView(R.id.drink_list_spinner)
     Spinner drinkListSpinner;
+
     @BindView(R.id.tvClock)
     TextView tvClock;
+
+    @BindView(R.id.start_button)
+    Button startButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         drinkListSpinner.setAdapter(adapter);
         int activeDrinkPosition = mainPresenter.getActiveDrinkPosition(adapter);
         drinkListSpinner.setSelection(activeDrinkPosition);
+        if(!adapter.isEmpty()) {
+            setTimer(drinkListSpinner.getSelectedItem().toString());
+            startButton.setEnabled(true);
+        }
     }
 
     @OnClick(R.id.start_button)
@@ -65,6 +74,15 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         mainPresenter.stopNotification();
         resetTimer();
 
+    }
+
+    private void setTimer(String nameDrink) {
+        long lastTimeActive = mainPresenter.getLastTimeNotification(nameDrink);
+        if (lastTimeActive == 0) {
+            resetTimer();
+        } else {
+            updateTimer(lastTimeActive);
+        }
     }
 
     private void resetTimer() {

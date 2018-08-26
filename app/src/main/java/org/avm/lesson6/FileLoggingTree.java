@@ -19,7 +19,7 @@ public class FileLoggingTree extends Timber.DebugTree {
     private final String FILENAME;
 
     FileLoggingTree() {
-        FILENAME = File.separator + "airKeeper.txt";
+        FILENAME = File.separator + "lesson6.txt";
     }
 
     @SuppressLint("LogNotTimber")

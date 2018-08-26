@@ -54,6 +54,7 @@
             android:layout_margin="33dp"
             android:clickable="true"
             android:background="@drawable/ic_start"
+            android:enabled="false"
             android:focusable="true" />
 
     </LinearLayout>

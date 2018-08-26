@@ -31,4 +31,6 @@ public interface IMainPresenter {
     void stopNotification();
 
     void closeDatabase();
+
+    long getLastTimeNotification(String nameDrink);
 }

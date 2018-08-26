@@ -1,4 +1,4 @@
-package org.avm.lesson6.presenter;
+package org.avm.lesson6.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -12,7 +12,6 @@ import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 
 import org.avm.lesson6.R;
-import org.avm.lesson6.model.NotificationBroadcastReceiver;
 import org.avm.lesson6.model.db.DataBaseRealm;
 import org.avm.lesson6.model.db.IDataBaseManager;
 import org.avm.lesson6.view.MainActivity;
@@ -21,7 +20,7 @@ import io.realm.Realm;
 import timber.log.Timber;
 
 public class NotificationJobIntentService extends JobIntentService {
-    private static final int UNIQUE_JOB_ID = 777;
+    private static final int UNIQUE_JOB_ID = 77;
     public static final int NOTIFICATION_ID = 333;
 
     public static void enqueueWork(Context context, Intent intent) {
@@ -40,31 +39,39 @@ public class NotificationJobIntentService extends JobIntentService {
         Timber.d("The onHandleWork() handler was called");
         IDataBaseManager dataBaseManager = initDataBase();
         String drinkName = dataBaseManager.getActiveDrinks().get(0).getName();
-        dataBaseManager.setActiveDrink(drinkName, System.currentTimeMillis());
+        long currentTimeMillis = System.currentTimeMillis();
+        dataBaseManager.setActiveDrink(drinkName, currentTimeMillis);
         sendNotification(drinkName);
-        NotificationBroadcastReceiver.scheduledNotification(getBaseContext());
+        NotificationBroadcastReceiver.scheduledNotification(getBaseContext(), currentTimeMillis);
         dataBaseManager.close();
         stopSelf();
     }
 
     private void sendNotification(String drinkName) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplication(), 0,
-                intent, 0);
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_start)
-                        .setContentTitle("Time to pause")
-                        .setContentText("It's time for a glass of " + drinkName)
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true);
-        Notification notification = builder.build();
-        notification.number = 3;
+        PendingIntent pendingIntent = createPendingIntent();
+        Notification notification = createNotification(drinkName, pendingIntent);
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, notification);
+        Timber.d("Send notification");
+    }
+
+    private PendingIntent createPendingIntent() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return PendingIntent.getActivity(getApplication(), 0,
+                intent, 0);
+    }
+
+    private Notification createNotification(String drinkName, PendingIntent pendingIntent) {
+        return new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_start)
+                .setContentTitle("Time to pause")
+                .setContentText("It's time for a glass of " + drinkName)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
     }
 
     @Override
@@ -83,5 +90,4 @@ public class NotificationJobIntentService extends JobIntentService {
         Realm.init(getApplicationContext());
         return new DataBaseRealm();
     }
-
 }

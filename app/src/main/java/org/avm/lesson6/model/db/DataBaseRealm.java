@@ -43,6 +43,7 @@ public class DataBaseRealm implements IDataBaseManager{
         realm.executeTransaction(realm -> {
             for (DrinkRealmObject drink: activeDrinks) {
                 drink.setActive(false);
+                drink.setTimeLastStart(0);
             }
         });
     }
@@ -50,6 +51,14 @@ public class DataBaseRealm implements IDataBaseManager{
     @Override
     public void close() {
         realm.close();
+    }
+
+    @Override
+    public long getActiveDrinkTime(String nameDrink) {
+        DrinkRealmObject drinkRealmObject = realm.where(DrinkRealmObject.class)
+                .equalTo("active", true)
+                .findFirst();
+        return drinkRealmObject != null ? drinkRealmObject.getTimeLastStart() : 0;
     }
 
     private DrinkRealmObject findDrinkByName(String drinkName) {

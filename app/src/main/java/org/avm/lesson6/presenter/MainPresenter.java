@@ -3,9 +3,9 @@ package org.avm.lesson6.presenter;
 import android.widget.ArrayAdapter;
 
 import org.avm.lesson6.model.DrinkRealmObject;
-import org.avm.lesson6.model.NotificationBroadcastReceiver;
 import org.avm.lesson6.model.db.DataBaseRealm;
 import org.avm.lesson6.model.db.IDataBaseManager;
+import org.avm.lesson6.service.NotificationBroadcastReceiver;
 import org.avm.lesson6.view.IMainActivity;
 
 import java.util.ArrayList;
@@ -60,11 +60,13 @@ public class MainPresenter implements IMainPresenter {
 
     @Override
     public void startNotification() {
-        NotificationBroadcastReceiver.scheduledNotification(mainActivity.getContext());
+        NotificationBroadcastReceiver.scheduledNotification(mainActivity.getContext(),
+                System.currentTimeMillis());
     }
 
     @Override
     public void stopNotification() {
+        dataBaseManager.disableAllActiveDrinks();
         NotificationBroadcastReceiver.unscheduledNotification(mainActivity.getContext());
     }
 
@@ -74,8 +76,12 @@ public class MainPresenter implements IMainPresenter {
     }
 
     @Override
+    public long getLastTimeNotification(String nameDrink) {
+        return dataBaseManager.getActiveDrinkTime(nameDrink);
+    }
+
+    @Override
     public void disableAllActiveDrinks() {
-        dataBaseManager.disableAllActiveDrinks();
         stopNotification();
         Timber.d("All active drinks were turned off.");
     }

@@ -1,4 +1,4 @@
-package org.avm.lesson6.model;
+package org.avm.lesson6.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -6,7 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import org.avm.lesson6.presenter.NotificationJobIntentService;
+import org.avm.lesson6.Util;
 
 import timber.log.Timber;
 
@@ -22,13 +22,14 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver{
 
     }
 
-    public static void scheduledNotification(Context context){
+    public static void scheduledNotification(Context context, long startTimeInMillis){
+
         AlarmManager alarmManager = (AlarmManager) context
                 .getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = createPendingIntent(context);
         if (alarmManager != null) {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                        getNextAlarmInMillis(MESSAGE_FREQUENCY_MINUTES),
+                        getNextAlarmInMillis(startTimeInMillis),
                         pendingIntent);
             Timber.d("A notification has been successfully installed");
         } else {
@@ -51,7 +52,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver{
         }
     }
 
-    private static long getNextAlarmInMillis(int frequencyMinutes) {
-        return System.currentTimeMillis() + Util.convertMinToMillis(frequencyMinutes);
+    private static long getNextAlarmInMillis(long startTimeInMillis) {
+        return startTimeInMillis + Util.convertMinToMillis(MESSAGE_FREQUENCY_MINUTES);
     }
 }

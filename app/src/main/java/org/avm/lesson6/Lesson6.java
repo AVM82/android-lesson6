@@ -11,9 +11,9 @@ public class Lesson6 extends Application {
         super.onCreate();
 
         if (BuildConfig.DEBUG) {
-//            Timber.plant(new Timber.DebugTree());
+            Timber.plant(new Timber.DebugTree());
             /*Logging to the file*/
-            Timber.plant(new FileLoggingTree());
+//            Timber.plant(new FileLoggingTree());
         }
         Timber.d("[Start application]");
     }

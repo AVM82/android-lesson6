@@ -1,5 +1,6 @@
 package org.avm.lesson6.view;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.avm.lesson6.R;
+import org.avm.lesson6.model.NotificationBroadcastReceiver;
 import org.avm.lesson6.presenter.IMainPresenter;
 import org.avm.lesson6.presenter.MainPresenter;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
@@ -26,9 +28,7 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements IMainActivity {
 
-    private static final int MESSAGE_FREQUENCY_MINUTES = 30;
-    public static final int MILLISECOND = 1000;
-    public static final int SECOND_IN_MINUTE = 60;
+    public static final int MESSAGE_FREQUENCY_MINUTES = 1;
 
     private IMainPresenter mainPresenter;
     private Realm realm;
@@ -41,11 +41,25 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @OnClick(R.id.start_button)
     void onStartButtonClick() {
+        Timber.d("Start button was clicked");
         String drinkName = drinkListSpinner.getSelectedItem().toString();
         mainPresenter.disableAllActiveDrinks();
         long activationTime = mainPresenter.setActiveDrink(drinkName);
+        mainPresenter.startNotification(MESSAGE_FREQUENCY_MINUTES);
         updateTimer(activationTime);
     }
+
+    @OnClick(R.id.stop_button)
+    void onStopButtonClick() {
+        mainPresenter.stopNotification();
+        resetTimer();
+
+    }
+
+    private void resetTimer() {
+        tvClock.setText(getString(R.string.def_value_clock));
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +107,13 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         long currentTime = getCurrentTime();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss", Locale.ENGLISH);
         tvClock.setText(simpleDateFormat.format(nextAlert - currentTime));
+//        Clock clock = new Clock();
+        Timber.d("Timer on view was updated");
+    }
+
+    @Override
+    public Context getContext() {
+        return getBaseContext();
     }
 
     private long getCurrentTime() {
@@ -100,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     }
 
     private long getNextAlert(long timeInMillis) {
-        return timeInMillis + (MESSAGE_FREQUENCY_MINUTES * SECOND_IN_MINUTE * MILLISECOND);
+        return timeInMillis + NotificationBroadcastReceiver.convertMinToMillis(MESSAGE_FREQUENCY_MINUTES);
     }
 
     @Override

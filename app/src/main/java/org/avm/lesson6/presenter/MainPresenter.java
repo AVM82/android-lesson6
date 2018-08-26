@@ -3,6 +3,7 @@ package org.avm.lesson6.presenter;
 import android.widget.ArrayAdapter;
 
 import org.avm.lesson6.model.DrinkRealmObject;
+import org.avm.lesson6.model.NotificationBroadcastReceiver;
 import org.avm.lesson6.view.IMainActivity;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import io.realm.RealmResults;
+import timber.log.Timber;
 
 public class MainPresenter implements IMainPresenter {
 
@@ -19,7 +21,7 @@ public class MainPresenter implements IMainPresenter {
     public MainPresenter(IMainActivity mainActivity) {
         this.mainActivity = mainActivity;
     }
-
+    //TODO create DataBaseManager
     @Override
     public void saveNewDrinkToBase(String drinkName) {
         mainActivity.getRealm().executeTransaction(realm -> {
@@ -57,7 +59,20 @@ public class MainPresenter implements IMainPresenter {
             drink.setActive(true);
             drink.setTimeLastStart(timeInMillis);
         });
+        Timber.d("%s is now active", drinkName);
         return timeInMillis;
+    }
+
+    @Override
+    public void startNotification(int frequencyMinutes) {
+        NotificationBroadcastReceiver.scheduledNotification(mainActivity.getContext(), frequencyMinutes);
+        Timber.d("A notification has been successfully installed");
+    }
+
+    @Override
+    public void stopNotification() {
+        NotificationBroadcastReceiver.unscheduledNotification(mainActivity.getContext());
+        Timber.d("A notification has been successfully stopped");
     }
 
     @Override
@@ -68,6 +83,7 @@ public class MainPresenter implements IMainPresenter {
                 drink.setActive(false);
             }
         });
+        Timber.d("All active drinks were turned off.");
     }
 
     private RealmResults<DrinkRealmObject> getActiveDrinks() {

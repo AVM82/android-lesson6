@@ -1,5 +1,6 @@
 package org.avm.lesson6.presenter;
 
+import android.app.AlarmManager;
 import android.widget.ArrayAdapter;
 
 import java.util.List;
@@ -25,4 +26,7 @@ public interface IMainPresenter {
      */
     long setActiveDrink(String drinkName);
 
+    void startNotification(int frequencyMinutes);
+
+    void stopNotification();
 }

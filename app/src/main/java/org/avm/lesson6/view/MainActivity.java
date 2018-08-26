@@ -66,9 +66,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        mainPresenter = new MainPresenter(this);
         Realm.init(getApplicationContext());
         realm = Realm.getDefaultInstance();
+        mainPresenter = new MainPresenter(this, realm);
         adapter = new ArrayAdapter<>(this, R.layout.spinner_item,
                 mainPresenter.getListDrinks());
         drinkListSpinner.setAdapter(adapter);
@@ -94,11 +94,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         });
         addNewDrinkDialog.show(getSupportFragmentManager(), "addNewDrink");
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public Realm getRealm() {
-        return realm;
     }
 
     @Override

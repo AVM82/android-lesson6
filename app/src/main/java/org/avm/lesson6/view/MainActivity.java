@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import org.avm.lesson6.R;
 import org.avm.lesson6.model.NotificationBroadcastReceiver;
+import org.avm.lesson6.model.Util;
 import org.avm.lesson6.presenter.IMainPresenter;
 import org.avm.lesson6.presenter.MainPresenter;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
@@ -23,15 +24,11 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.realm.Realm;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements IMainActivity {
 
-    public static final int MESSAGE_FREQUENCY_MINUTES = 1;
-
     private IMainPresenter mainPresenter;
-    private Realm realm;
     private ArrayAdapter<String> adapter;
 
     @BindView(R.id.drink_list_spinner)
@@ -39,42 +36,42 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     @BindView(R.id.tvClock)
     TextView tvClock;
 
-    @OnClick(R.id.start_button)
-    void onStartButtonClick() {
-        Timber.d("Start button was clicked");
-        String drinkName = drinkListSpinner.getSelectedItem().toString();
-        mainPresenter.disableAllActiveDrinks();
-        long activationTime = mainPresenter.setActiveDrink(drinkName);
-        mainPresenter.startNotification(MESSAGE_FREQUENCY_MINUTES);
-        updateTimer(activationTime);
-    }
-
-    @OnClick(R.id.stop_button)
-    void onStopButtonClick() {
-        mainPresenter.stopNotification();
-        resetTimer();
-
-    }
-
-    private void resetTimer() {
-        tvClock.setText(getString(R.string.def_value_clock));
-    }
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        Realm.init(getApplicationContext());
-        realm = Realm.getDefaultInstance();
-        mainPresenter = new MainPresenter(this, realm);
+        mainPresenter = new MainPresenter(this);
         adapter = new ArrayAdapter<>(this, R.layout.spinner_item,
                 mainPresenter.getListDrinks());
         drinkListSpinner.setAdapter(adapter);
         int activeDrinkPosition = mainPresenter.getActiveDrinkPosition(adapter);
         drinkListSpinner.setSelection(activeDrinkPosition);
     }
+
+    @OnClick(R.id.start_button)
+    void onStartButtonClick() {
+        Timber.d("Start button was clicked");
+        String drinkName = drinkListSpinner.getSelectedItem().toString();
+        mainPresenter.disableAllActiveDrinks();
+        long activationTime = mainPresenter.setActiveDrink(drinkName);
+        mainPresenter.startNotification();
+        updateTimer(activationTime);
+    }
+
+    @OnClick(R.id.stop_button)
+    void onStopButtonClick() {
+        Timber.d("Stop button was clicked");
+        mainPresenter.stopNotification();
+        resetTimer();
+
+    }
+
+    private void resetTimer() {
+        Timber.d("Reset timer");
+        tvClock.setText(getString(R.string.def_value_clock));
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -116,13 +113,13 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     }
 
     private long getNextAlert(long timeInMillis) {
-        return timeInMillis + NotificationBroadcastReceiver.convertMinToMillis(MESSAGE_FREQUENCY_MINUTES);
+        return timeInMillis + Util.convertMinToMillis(NotificationBroadcastReceiver.MESSAGE_FREQUENCY_MINUTES);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        realm.close();
+        mainPresenter.closeDatabase();
     }
 
 }

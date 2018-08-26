@@ -26,7 +26,9 @@ public interface IMainPresenter {
      */
     long setActiveDrink(String drinkName);
 
-    void startNotification(int frequencyMinutes);
+    void startNotification();
 
     void stopNotification();
+
+    void closeDatabase();
 }

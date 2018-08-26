@@ -12,24 +12,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import io.realm.Realm;
 import io.realm.RealmResults;
 import timber.log.Timber;
 
 public class MainPresenter implements IMainPresenter {
 
     private static final int FIRST_POSITION_INDEX = 0;
+
     private IMainActivity mainActivity;
     private IDataBaseManager dataBaseManager;
 
-    public MainPresenter(IMainActivity mainActivity, Realm realm) {
+    public MainPresenter(IMainActivity mainActivity) {
         this.mainActivity = mainActivity;
-        dataBaseManager = new DataBaseRealm(realm);
+        dataBaseManager = new DataBaseRealm();
     }
 
     @Override
     public void saveNewDrinkToBase(String drinkName) {
         dataBaseManager.saveNewDrink(drinkName);
+        Timber.d("New drink was saved in database");
     }
 
     @Override
@@ -58,21 +59,27 @@ public class MainPresenter implements IMainPresenter {
     }
 
     @Override
-    public void startNotification(int frequencyMinutes) {
-        NotificationBroadcastReceiver.scheduledNotification(mainActivity.getContext(), frequencyMinutes);
-        Timber.d("A notification has been successfully installed");
+    public void startNotification() {
+        NotificationBroadcastReceiver.scheduledNotification(mainActivity.getContext());
     }
 
     @Override
     public void stopNotification() {
         NotificationBroadcastReceiver.unscheduledNotification(mainActivity.getContext());
-        Timber.d("A notification has been successfully stopped");
+    }
+
+    @Override
+    public void closeDatabase() {
+        dataBaseManager.close();
     }
 
     @Override
     public void disableAllActiveDrinks() {
         dataBaseManager.disableAllActiveDrinks();
+        stopNotification();
         Timber.d("All active drinks were turned off.");
     }
+
+
 
 }

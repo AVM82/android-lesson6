@@ -9,8 +9,8 @@ public class DataBaseRealm implements IDataBaseManager{
     private Realm realm;
 
 
-    public DataBaseRealm(Realm realm) {
-        this.realm = realm;
+    public DataBaseRealm() {
+        this.realm = Realm.getDefaultInstance();
     }
 
     @Override
@@ -45,6 +45,11 @@ public class DataBaseRealm implements IDataBaseManager{
                 drink.setActive(false);
             }
         });
+    }
+
+    @Override
+    public void close() {
+        realm.close();
     }
 
     private DrinkRealmObject findDrinkByName(String drinkName) {

@@ -12,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.avm.lesson6.R;
+import org.avm.lesson6.model.CountdownTimer;
 import org.avm.lesson6.service.NotificationBroadcastReceiver;
 import org.avm.lesson6.Util;
 import org.avm.lesson6.presenter.IMainPresenter;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     private IMainPresenter mainPresenter;
     private ArrayAdapter<String> adapter;
+    private CountdownTimer countdownTimer;
 
     @BindView(R.id.drink_list_spinner)
     Spinner drinkListSpinner;
@@ -52,10 +54,16 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         drinkListSpinner.setAdapter(adapter);
         int activeDrinkPosition = mainPresenter.getActiveDrinkPosition(adapter);
         drinkListSpinner.setSelection(activeDrinkPosition);
-        if(!adapter.isEmpty()) {
+        initCountdownTimer();
+        if (!adapter.isEmpty()) {
             setTimer(drinkListSpinner.getSelectedItem().toString());
             startButton.setEnabled(true);
         }
+    }
+
+    private void initCountdownTimer() {
+        countdownTimer = new CountdownTimer();
+        countdownTimer.setOnClockTickListener(this::updateTimer);
     }
 
     @OnClick(R.id.start_button)
@@ -65,7 +73,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         mainPresenter.disableAllActiveDrinks();
         long activationTime = mainPresenter.setActiveDrink(drinkName);
         mainPresenter.startNotification();
-        updateTimer(activationTime);
+//        updateTimer(activationTime);
+        setTimer(drinkName);
+        countdownTimer.start(activationTime);
     }
 
     @OnClick(R.id.stop_button)
@@ -73,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         Timber.d("Stop button was clicked");
         mainPresenter.stopNotification();
         resetTimer();
-
     }
 
     private void setTimer(String nameDrink) {
@@ -82,12 +91,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             resetTimer();
         } else {
             updateTimer(lastTimeActive);
+            countdownTimer.start(lastTimeActive);
         }
     }
 
     private void resetTimer() {
-        Timber.d("Reset timer");
+        Timber.d("Reset countdownTimer");
         tvClock.setText(getString(R.string.def_value_clock));
+        countdownTimer.stop();
     }
 
 
@@ -116,9 +127,17 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         long nextAlert = getNextAlert(timeInMillis);
         long currentTime = getCurrentTime();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss", Locale.ENGLISH);
-        tvClock.setText(simpleDateFormat.format(nextAlert - currentTime));
-//        Clock clock = new Clock();
-        Timber.d("Timer on view was updated");
+        long now = nextAlert - currentTime;
+        tvClock.setText(simpleDateFormat.format(now));
+        if (now < 0) {
+            restartTimer();
+        }
+        Timber.d("CountdownTimer on view was updated");
+    }
+
+    private void restartTimer() {
+        resetTimer();
+        setTimer(drinkListSpinner.getSelectedItem().toString());
     }
 
     @Override

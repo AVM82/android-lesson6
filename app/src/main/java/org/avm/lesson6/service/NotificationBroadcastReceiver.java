@@ -13,7 +13,7 @@ import timber.log.Timber;
 public class NotificationBroadcastReceiver extends BroadcastReceiver{
 
     private static final int REQUEST_CODE = 777;
-    public static final int MESSAGE_FREQUENCY_MINUTES = 1;
+    public static final int MESSAGE_FREQUENCY_MINUTES = 30;
 
     @Override
     public void onReceive(Context context, Intent intent) {

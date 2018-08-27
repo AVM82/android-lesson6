@@ -1,11 +1,13 @@
 package org.avm.lesson6.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.JobIntentService;
@@ -22,6 +24,8 @@ import timber.log.Timber;
 public class NotificationJobIntentService extends JobIntentService {
     private static final int UNIQUE_JOB_ID = 77;
     public static final int NOTIFICATION_ID = 333;
+    public static final String CHANNEL_ID = "111";
+    public static final String CHANNEL_NAME = "drink";
 
     public static void enqueueWork(Context context, Intent intent) {
         enqueueWork(context, NotificationJobIntentService.class, UNIQUE_JOB_ID, intent);
@@ -49,9 +53,13 @@ public class NotificationJobIntentService extends JobIntentService {
 
     private void sendNotification(String drinkName) {
         PendingIntent pendingIntent = createPendingIntent();
-        Notification notification = createNotification(drinkName, pendingIntent);
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+        Notification notification = createNotification(drinkName, pendingIntent);
         notificationManager.notify(NOTIFICATION_ID, notification);
         Timber.d("Send notification");
     }
@@ -64,7 +72,7 @@ public class NotificationJobIntentService extends JobIntentService {
     }
 
     private Notification createNotification(String drinkName, PendingIntent pendingIntent) {
-        return new NotificationCompat.Builder(this)
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_start)
                 .setContentTitle("Time to pause")
                 .setContentText("It's time for a glass of " + drinkName)

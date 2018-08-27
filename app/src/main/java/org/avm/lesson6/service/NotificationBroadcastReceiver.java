@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import org.avm.lesson6.Util;
 
@@ -13,7 +14,7 @@ import timber.log.Timber;
 public class NotificationBroadcastReceiver extends BroadcastReceiver{
 
     private static final int REQUEST_CODE = 777;
-    public static final int MESSAGE_FREQUENCY_MINUTES = 30;
+    public static final int MESSAGE_FREQUENCY_MINUTES = 1;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -28,9 +29,15 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver{
                 .getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = createPendingIntent(context);
         if (alarmManager != null) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP,
-                        getNextAlarmInMillis(startTimeInMillis),
-                        pendingIntent);
+            long when = getNextAlarmInMillis(startTimeInMillis);
+            int SDK_INT = Build.VERSION.SDK_INT;
+            if (SDK_INT < Build.VERSION_CODES.KITKAT)
+                alarmManager.set(AlarmManager.RTC_WAKEUP, when, pendingIntent);
+            else if (Build.VERSION_CODES.KITKAT <= SDK_INT && SDK_INT < Build.VERSION_CODES.M)
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, when, pendingIntent);
+            else if (SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, when, pendingIntent);
+            }
             Timber.d("A notification has been successfully installed");
         } else {
             Timber.d("Failed scheduled notification");

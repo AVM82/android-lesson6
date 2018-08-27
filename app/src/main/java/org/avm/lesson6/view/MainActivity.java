@@ -117,6 +117,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             mainPresenter.saveNewDrinkToBase(nameOfDrink);
             adapter.add(nameOfDrink);
             adapter.notifyDataSetChanged();
+            if(!startButton.isEnabled()) {
+                startButton.setEnabled(true);
+            }
         });
         addNewDrinkDialog.show(getSupportFragmentManager(), "addNewDrink");
         return super.onOptionsItemSelected(item);

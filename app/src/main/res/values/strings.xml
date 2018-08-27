@@ -8,4 +8,5 @@
     <string name="cancel">CANCEL</string>
     <string name="text_for_spinner">What will we drink</string>
     <string name="alert_empty_name_drink">Enter name of drink</string>
+    <string name="restart_notif">Click start</string>
 </resources>

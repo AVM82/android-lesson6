@@ -14,5 +14,4 @@ public class RebootBroadcastReceiver extends BroadcastReceiver {
             RestoreAfterRebootJobIntentService.enqueueWork(context, intent);
         }
     }
-
 }

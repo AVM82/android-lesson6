@@ -11,26 +11,25 @@ import org.avm.lesson6.Util;
 
 import timber.log.Timber;
 
-public class NotificationBroadcastReceiver extends BroadcastReceiver{
+public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private static final int REQUEST_CODE = 777;
-    public static final int MESSAGE_FREQUENCY_MINUTES = 1;
+    private static final int SDK_INT = Build.VERSION.SDK_INT;
+
+    public static final int MESSAGE_FREQUENCY_MINUTES = 30;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         Timber.d("Start job for notification.");
         NotificationJobIntentService.enqueueWork(context, intent);
-
     }
 
-    public static void scheduledNotification(Context context, long startTimeInMillis){
-
+    public static void scheduledNotification(Context context, long startTimeInMillis) {
         AlarmManager alarmManager = (AlarmManager) context
                 .getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = createPendingIntent(context);
         if (alarmManager != null) {
             long when = getNextAlarmInMillis(startTimeInMillis);
-            int SDK_INT = Build.VERSION.SDK_INT;
             if (SDK_INT < Build.VERSION_CODES.KITKAT)
                 alarmManager.set(AlarmManager.RTC_WAKEUP, when, pendingIntent);
             else if (Build.VERSION_CODES.KITKAT <= SDK_INT && SDK_INT < Build.VERSION_CODES.M)
@@ -49,8 +48,8 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver{
         return PendingIntent.getBroadcast(context, REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
 
-    public static void unscheduledNotification(Context context){
-        AlarmManager alarmManager  = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    public static void unscheduledNotification(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (alarmManager != null) {
             alarmManager.cancel(createPendingIntent(context));
             Timber.d("A notification has been successfully stopped");

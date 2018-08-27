@@ -1,6 +1,5 @@
 package org.avm.lesson6.presenter;
 
-import android.app.AlarmManager;
 import android.widget.ArrayAdapter;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public interface IMainPresenter {
     void disableAllActiveDrinks();
 
     /**
-     *Changes the status of the drink to the active
+     * Changes the status of the drink to the active
      *
      * @param drinkName name of drink which will be set as active
      * @return activation time

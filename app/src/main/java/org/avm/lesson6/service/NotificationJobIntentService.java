@@ -35,7 +35,6 @@ public class NotificationJobIntentService extends JobIntentService {
     public void onCreate() {
         super.onCreate();
         Timber.d("The onCreate() handler was called");
-
     }
 
     @Override
@@ -56,7 +55,8 @@ public class NotificationJobIntentService extends JobIntentService {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID,
+                    CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(mChannel);
         }
         Notification notification = createNotification(drinkName, pendingIntent);

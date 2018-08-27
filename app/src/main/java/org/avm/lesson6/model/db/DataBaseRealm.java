@@ -5,7 +5,7 @@ import org.avm.lesson6.model.DrinkRealmObject;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class DataBaseRealm implements IDataBaseManager{
+public class DataBaseRealm implements IDataBaseManager {
     private Realm realm;
 
 
@@ -41,7 +41,7 @@ public class DataBaseRealm implements IDataBaseManager{
     public void disableAllActiveDrinks() {
         final RealmResults<DrinkRealmObject> activeDrinks = getActiveDrinks();
         realm.executeTransaction(realm -> {
-            for (DrinkRealmObject drink: activeDrinks) {
+            for (DrinkRealmObject drink : activeDrinks) {
                 drink.setActive(false);
                 drink.setTimeLastStart(0);
             }
@@ -69,7 +69,7 @@ public class DataBaseRealm implements IDataBaseManager{
 
     @Override
     public RealmResults<DrinkRealmObject> getActiveDrinks() {
-        return  realm.where(DrinkRealmObject.class)
+        return realm.where(DrinkRealmObject.class)
                 .equalTo("active", true)
                 .findAll();
     }

@@ -25,12 +25,11 @@ public class CountdownTimer {
             handler.postAtTime(ticker, next);
         };
         this.ticker.run();
-
     }
+
     public void stop() {
         if (this.handler != null) {
             this.handler.removeCallbacks(this.ticker);
         }
-
     }
 }

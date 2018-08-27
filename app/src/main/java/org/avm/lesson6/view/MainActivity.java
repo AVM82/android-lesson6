@@ -12,11 +12,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.avm.lesson6.R;
-import org.avm.lesson6.model.CountdownTimer;
-import org.avm.lesson6.service.NotificationBroadcastReceiver;
 import org.avm.lesson6.Util;
+import org.avm.lesson6.model.CountdownTimer;
 import org.avm.lesson6.presenter.IMainPresenter;
 import org.avm.lesson6.presenter.MainPresenter;
+import org.avm.lesson6.service.NotificationBroadcastReceiver;
 import org.avm.lesson6.view.dialog.AddNewDrinkDialog;
 
 import java.text.SimpleDateFormat;
@@ -55,6 +55,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         int activeDrinkPosition = mainPresenter.getActiveDrinkPosition(adapter);
         drinkListSpinner.setSelection(activeDrinkPosition);
         initCountdownTimer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (!adapter.isEmpty()) {
             setTimer(drinkListSpinner.getSelectedItem().toString());
             startButton.setEnabled(true);
@@ -73,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         mainPresenter.disableAllActiveDrinks();
         long activationTime = mainPresenter.setActiveDrink(drinkName);
         mainPresenter.startNotification();
-//        updateTimer(activationTime);
         setTimer(drinkName);
         countdownTimer.start(activationTime);
     }
@@ -86,12 +90,18 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     }
 
     private void setTimer(String nameDrink) {
+        Timber.d("Set Timer");
         long lastTimeActive = mainPresenter.getLastTimeNotification(nameDrink);
         if (lastTimeActive == 0) {
             resetTimer();
         } else {
-            updateTimer(lastTimeActive);
-            countdownTimer.start(lastTimeActive);
+            long delta = getDeltaNextAlertAndCurrentTime(lastTimeActive);
+            if (delta < 0) {
+                tvClock.setText(R.string.restart_notif);
+            } else {
+                tvClock.setText(timeToString(delta));
+                countdownTimer.start(lastTimeActive);
+            }
         }
     }
 
@@ -117,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             mainPresenter.saveNewDrinkToBase(nameOfDrink);
             adapter.add(nameOfDrink);
             adapter.notifyDataSetChanged();
-            if(!startButton.isEnabled()) {
+            if (!startButton.isEnabled()) {
                 startButton.setEnabled(true);
             }
         });
@@ -127,18 +137,27 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void updateTimer(long timeInMillis) {
-        long nextAlert = getNextAlert(timeInMillis);
-        long currentTime = getCurrentTime();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss", Locale.ENGLISH);
-        long now = nextAlert - currentTime;
-        tvClock.setText(simpleDateFormat.format(now));
-        if (now < 0) {
+        Timber.d("Update Timer");
+        long delta = getDeltaNextAlertAndCurrentTime(timeInMillis);
+        if (delta < 0) {
             restartTimer();
+        } else {
+            tvClock.setText(timeToString(delta));
         }
         Timber.d("CountdownTimer on view was updated");
     }
 
+    private String timeToString(long millis) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss", Locale.ENGLISH);
+        return simpleDateFormat.format(millis);
+    }
+
+    private long getDeltaNextAlertAndCurrentTime(long lastActive) {
+        return getNextAlert(lastActive) - getCurrentTime();
+    }
+
     private void restartTimer() {
+        Timber.d("Restart Timer");
         resetTimer();
         setTimer(drinkListSpinner.getSelectedItem().toString());
     }
@@ -157,9 +176,16 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        countdownTimer.stop();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mainPresenter.closeDatabase();
+
     }
 
 }

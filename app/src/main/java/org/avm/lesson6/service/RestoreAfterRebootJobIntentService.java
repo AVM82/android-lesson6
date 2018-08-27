@@ -25,7 +25,6 @@ public class RestoreAfterRebootJobIntentService extends JobIntentService {
     public void onCreate() {
         super.onCreate();
         Timber.d("The onCreate() handler was called");
-
     }
 
     @Override
@@ -38,7 +37,6 @@ public class RestoreAfterRebootJobIntentService extends JobIntentService {
             Timber.d("ScheduledNotification %s", activeDrinks);
             NotificationBroadcastReceiver.scheduledNotification(getBaseContext(), activeDrinkTime);
         }
-
         dataBaseManager.close();
         stopSelf();
     }
